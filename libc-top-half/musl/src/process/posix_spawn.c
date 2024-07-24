@@ -11,7 +11,7 @@
 #include <wasi/api.h>
 #endif
 #include "lock.h"
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #include "fdop.h"
 
 #ifdef __wasilibc_unmodified_upstream
@@ -38,7 +38,8 @@ static int __sys_dup2(int old, int new)
 #endif
 #else
 	__wasi_errno_t error = __wasi_fd_renumber(old, new);
-    if (error != 0) {
+    int errno=0;
+	if (error != 0) {
         errno = error;
         return -1;
     }
@@ -144,7 +145,7 @@ static int child(void *args_vp)
 			case FDOP_DUP2:
 				fd = op->srcfd;
 				if (fd == p) {
-					ret = -EBADF;
+					ret = -1;//-EBADF;
 					goto fail;
 				}
 				
@@ -164,7 +165,7 @@ static int child(void *args_vp)
 					if (ret<0)
 						goto fail;
 #else
-					ret = -EBADF;
+					ret = -1;//-EBADF;
 					goto fail;
 #endif
 				}
@@ -202,7 +203,7 @@ static int child(void *args_vp)
 #ifdef __wasilibc_unmodified_upstream
 				ret = __syscall(SYS_fchdir, op->fd);
 #else
-				ret = -EINVAL;
+				ret = -1;//-EINVAL;
 				goto fail;
 #endif
 				if (ret<0) goto fail;
@@ -226,7 +227,7 @@ static int child(void *args_vp)
 		attr->__fn ? (int (*)())attr->__fn : execve;
 
 	exec(args->path, args->argv, args->envp);
-	ret = -errno;
+	ret = -1;//-errno;
 
 fail:
 	/* Since sizeof errno < PIPE_BUF, the write is atomic. */
@@ -245,19 +246,19 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
 	const posix_spawnattr_t *restrict attr,
 	char *const argv[restrict], char *const envp[restrict])
 {
-	pid_t pid;
-	char stack[1024+PATH_MAX];
+	pid_t pid=0;
+	char stack[2048];
 	int ec=0, cs;
 	struct args args;
 
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
+	//pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 
 	args.path = path;
 	args.fa = fa;
 	args.attr = attr ? attr : &(const posix_spawnattr_t){0};
 	args.argv = argv;
 	args.envp = envp;
-	pthread_sigmask(SIG_BLOCK, SIGALL_SET, &args.oldmask);
+	//pthread_sigmask(SIG_BLOCK, SIGALL_SET, &args.oldmask);
 
 	/* The lock guards both against seeing a SIGABRT disposition change
 	 * by abort and against leaking the pipe fd to fork-without-exec. */
@@ -265,12 +266,12 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
 
 	if (pipe2(args.p, O_CLOEXEC)) {
 		UNLOCK(__abort_lock);
-		ec = errno;
+		//ec = errno;
 		goto fail;
 	}
 
-	pid = __clone(child, stack+sizeof stack,
-		CLONE_VM|CLONE_VFORK|SIGCHLD, &args);
+	//pid = __clone(child, stack+sizeof stack,
+	//	CLONE_VM|CLONE_VFORK|SIGCHLD, &args);
 	close(args.p[1]);
 	UNLOCK(__abort_lock);
 
@@ -286,8 +287,8 @@ int posix_spawn(pid_t *restrict res, const char *restrict path,
 	if (!ec && res) *res = pid;
 
 fail:
-	pthread_sigmask(SIG_SETMASK, &args.oldmask, 0);
-	pthread_setcancelstate(cs, 0);
+	//pthread_sigmask(SIG_SETMASK, &args.oldmask, 0);
+	//pthread_setcancelstate(cs, 0);
 
 	return ec;
 }

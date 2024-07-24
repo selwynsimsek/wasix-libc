@@ -88,9 +88,9 @@ int getspnam_r(const char *name, struct spwd *sp, char *buf, size_t size, struct
 		struct stat st = { 0 };
 		errno = EINVAL;
 		if (fstat(fd, &st) || !S_ISREG(st.st_mode) || !(f = fdopen(fd, "rb"))) {
-			pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
+//			pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 			close(fd);
-			pthread_setcancelstate(cs, 0);
+//			pthread_setcancelstate(cs, 0);
 			return errno;
 		}
 	} else {
@@ -104,7 +104,7 @@ int getspnam_r(const char *name, struct spwd *sp, char *buf, size_t size, struct
 		}
 	}
 
-	pthread_cleanup_push(cleanup, f);
+//	pthread_cleanup_push(cleanup, f);
 	while (fgets(buf, size, f) && (k=strlen(buf))>0) {
 		if (skip || strncmp(name, buf, l) || buf[l]!=':') {
 			skip = buf[k-1] != '\n';
@@ -119,7 +119,7 @@ int getspnam_r(const char *name, struct spwd *sp, char *buf, size_t size, struct
 		*res = sp;
 		break;
 	}
-	pthread_cleanup_pop(1);
+//	pthread_cleanup_pop(1);
 	errno = rv ? rv : orig_errno;
 	return rv;
 }

@@ -5,7 +5,7 @@
 #else
 #include <wasi/api.h>
 #endif
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #include "atomic.h"
 #include "lock.h"
 #include "ksigaction.h"
@@ -24,17 +24,17 @@ _Noreturn void abort(void)
 #ifdef __wasilibc_unmodified_upstream
 	__syscall(SYS_rt_sigaction, SIGABRT,
 		&(struct k_sigaction){.handler = SIG_DFL}, 0, _NSIG/8);
-	__syscall(SYS_tkill, __pthread_self()->tid, SIGABRT);
+	//__syscall(SYS_tkill, __pthread_self()->tid, SIGABRT);
 	__syscall(SYS_rt_sigprocmask, SIG_UNBLOCK,
 		&(long[_NSIG/(8*sizeof(long))]){1UL<<(SIGABRT-1)}, 0, _NSIG/8);
 #else
 	int r;
-	r = __wasi_thread_signal(__pthread_self()->tid, SIGABRT);
+	//r = __wasi_thread_signal(__pthread_self()->tid, SIGABRT);
 	_Exit(127);
 #endif
 
 	/* Beyond this point should be unreachable. */
-	a_crash();
+	//a_crash();
 	raise(SIGKILL);
 	_Exit(127);
 }

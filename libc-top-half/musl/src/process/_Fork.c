@@ -7,7 +7,7 @@
 #endif
 #include "libc.h"
 #include "lock.h"
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #include "aio_impl.h"
 
 static void dummy(int x) { }
@@ -35,28 +35,5 @@ pid_t _Fork(int copy_mem)
 		ret = (int)pid;
 	}
 #endif
-	if (!ret) {
-		pthread_t self = __pthread_self();
-#ifdef __wasilibc_unmodified_upstream
-		self->tid = __syscall(SYS_gettid);
-#else
-		int r = __wasi_thread_id(&self->tid);
-		if (r != 0) {
-			/* Beyond this point should be unreachable. */
-			a_crash();
-			raise(SIGKILL);
-			_Exit(127);
-		}
-#endif
-		self->robust_list.off = 0;
-		self->robust_list.pending = 0;
-		self->next = self->prev = self;
-		__thread_list_lock = 0;
-		libc.threads_minus_1 = 0;
-		if (libc.need_locks) libc.need_locks = -1;
-	}
-	UNLOCK(__abort_lock);
-	__aio_atfork(!ret);
-	__restore_sigs(&set);
-	return __syscall_ret(ret);
+return ret;
 }

@@ -235,7 +235,6 @@ __attribute__((constructor(51)))
 static void __wasilibc_populate_preopens(void) {
     if (__wasilibc_populate_preopens_init == 0) {
         __wasilibc_populate_preopens_init = 1;
-
         // Skip stdin, stdout, and stderr, and count up until we reach an invalid
         // file descriptor.
         for (__wasi_fd_t fd = 3; fd != 0; ++fd) {

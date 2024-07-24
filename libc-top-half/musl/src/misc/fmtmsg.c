@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #if defined(__wasilibc_unmodified_upstream) || defined(_REENTRANT)
-#include <pthread.h>
+//#include <pthread.h>
 #endif
 
 /*
@@ -34,7 +34,7 @@ int fmtmsg(long classification, const char *label, int severity,
 	int cs;
 
 #if defined(__wasilibc_unmodified_upstream) || defined(_REENTRANT)
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
+//	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 #endif
 
 	if (severity == MM_HALT) errstring = "HALT: ";
@@ -89,7 +89,7 @@ int fmtmsg(long classification, const char *label, int severity,
 		ret = MM_NOTOK;
 
 #if defined(__wasilibc_unmodified_upstream) || defined(_REENTRANT)
-	pthread_setcancelstate(cs, 0);
+//	pthread_setcancelstate(cs, 0);
 #endif
 
 	return ret;

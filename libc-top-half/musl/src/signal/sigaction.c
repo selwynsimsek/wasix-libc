@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <string.h>
 #include "syscall.h"
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #include "libc.h"
 #include "lock.h"
 #include "ksigaction.h"
@@ -201,8 +201,8 @@ int __libc_sigaction(int sig, const struct sigaction *restrict sa, struct sigact
 	struct k_sigaction ksa, ksa_old;
 	if (sa) {
 		if ((uintptr_t)sa->sa_handler > 1UL) {
-			a_or_l(handler_set+(sig-1)/(8*sizeof(long)),
-				1UL<<(sig-1)%(8*sizeof(long)));
+			//a_or_l(handler_set+(sig-1)/(8*sizeof(long)),
+			//	1UL<<(sig-1)%(8*sizeof(long)));
 
 			/* If pthread_create has not yet been called,
 			 * implementation-internal signals might not
@@ -212,7 +212,7 @@ int __libc_sigaction(int sig, const struct sigaction *restrict sa, struct sigact
 			 * receive an illegal sigset_t (with them
 			 * blocked) as part of the ucontext_t passed
 			 * to the signal handler. */
-			if (!libc.threaded && !unmask_done) {
+			if ( !unmask_done) {
 #ifdef __wasilibc_unmodified_upstream
 				__syscall(SYS_rt_sigprocmask, SIG_UNBLOCK,
 					SIGPT_SET, 0, _NSIG/8);
@@ -221,7 +221,7 @@ int __libc_sigaction(int sig, const struct sigaction *restrict sa, struct sigact
 			}
 
 			if (!(sa->sa_flags & SA_RESTART)) {
-				a_store(&__eintr_valid_flag, 1);
+			//	a_store(&__eintr_valid_flag, 1);
 			}
 		}
 		ksa.handler = sa->sa_handler;
@@ -232,9 +232,6 @@ int __libc_sigaction(int sig, const struct sigaction *restrict sa, struct sigact
 #ifdef __wasilibc_unmodified_upstream
 	int r = __syscall(SYS_rt_sigaction, sig, sa?&ksa:0, old?&ksa_old:0, _NSIG/8);
 #else
-	if (a_cas(&__eintr_callback_registered, 0, 1) == 0) {
-		__wasi_callback_signal("__wasm_signal");
-	}
 	int r = 0;
 	if (sig-32U < 3 || sig-1U >= _NSIG-1) {
 		r = EINVAL;

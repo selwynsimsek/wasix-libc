@@ -1,4 +1,4 @@
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #ifdef __wasilibc_unmodified_upstream
 #include "syscall.h"
 #else
@@ -22,7 +22,7 @@ static const unsigned long all_mask[] = {
 };
 
 static const unsigned long app_mask[] = {
-#if ULONG_MAX == 0xffffffff
+#if ULONG_MAX == 0xffffffff || defined(SINGLE_THREADED)
 #if _NSIG == 65
 	0x7fffffff, 0xfffffffc
 #else
@@ -42,7 +42,7 @@ void __block_all_sigs(void *set)
 #ifdef __wasilibc_unmodified_upstream
 	__syscall(SYS_rt_sigprocmask, SIG_BLOCK, &all_mask, set, _NSIG/8);
 #else
-	a_store(__eintr_handler_lock, 1);
+	//a_store(__eintr_handler_lock, 1);
 	__wasi_callback_signal("__wasm_signal_blocked");
 #endif
 }
@@ -52,7 +52,7 @@ void __block_app_sigs(void *set)
 #ifdef __wasilibc_unmodified_upstream
 	__syscall(SYS_rt_sigprocmask, SIG_BLOCK, &app_mask, set, _NSIG/8);
 #else
-	a_store(__eintr_handler_lock, 1);
+	//a_store(__eintr_handler_lock, 1);
 	__wasi_callback_signal("__wasm_signal_blocked");
 #endif
 }

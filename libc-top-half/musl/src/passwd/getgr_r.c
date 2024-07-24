@@ -13,7 +13,7 @@ static int getgr_r(const char *name, gid_t gid, struct group *gr, char *buf, siz
 	size_t i;
 	int cs;
 
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
+//	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 
 	rv = __getgr_a(name, gid, gr, &line, &len, &mem, &nmem, res);
 	if (*res && size < len + (nmem+1)*sizeof(char *) + 32) {
@@ -33,7 +33,7 @@ static int getgr_r(const char *name, gid_t gid, struct group *gr, char *buf, siz
 	}
  	free(mem);
  	free(line);
-	pthread_setcancelstate(cs, 0);
+//	pthread_setcancelstate(cs, 0);
 	if (rv) errno = rv;
 	return rv;
 }

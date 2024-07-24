@@ -25,7 +25,7 @@ int __getgr_a(const char *name, gid_t gid, struct group *gr, char **buf, size_t 
 
 	*res = 0;
 
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
+//	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 	f = fopen("/etc/group", "rbe");
 	if (!f) {
 		rv = errno;
@@ -163,7 +163,7 @@ cleanup_f:
 	}
 
 done:
-	pthread_setcancelstate(cs, 0);
+//	pthread_setcancelstate(cs, 0);
 	if (rv) errno = rv;
 	return rv;
 }

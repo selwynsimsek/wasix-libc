@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <unistd.h>
 #include <endian.h>
 #include <errno.h>
@@ -63,10 +63,10 @@ int getaddrinfo(const char *restrict host, const char *restrict serv, const stru
 				IPPROTO_UDP);
 			if (s>=0) {
 				int cs;
-				pthread_setcancelstate(
-					PTHREAD_CANCEL_DISABLE, &cs);
+				//pthread_setcancelstate(
+				//	PTHREAD_CANCEL_DISABLE, &cs);
 				int r = connect(s, ta[i], tl[i]);
-				pthread_setcancelstate(cs, 0);
+				//pthread_setcancelstate(cs, 0);
 				close(s);
 				if (!r) continue;
 			}

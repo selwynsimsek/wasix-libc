@@ -4,7 +4,7 @@
 #ifdef __wasilibc_unmodified_upstream
 #include "syscall.h"
 #else
-#include "pthread_impl.h"
+//#include "pthread_impl.h"
 #endif
 
 pid_t wait3(int *status, int options, struct rusage *usage)
